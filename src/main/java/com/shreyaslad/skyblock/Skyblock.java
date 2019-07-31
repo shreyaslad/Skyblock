@@ -1,6 +1,5 @@
 package com.shreyaslad.skyblock;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -8,6 +7,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public final class Skyblock extends JavaPlugin {
@@ -35,6 +36,8 @@ public final class Skyblock extends JavaPlugin {
             File saveFolder = new File(getDataFolder() + "/");
             File save = new File(saveFolder + "/data.json");
 
+            Map<String, String> map = new HashMap<>();
+
             if (args.length == 0) {
                 player.sendMessage("Doing the things");
                 //TODO: check if they have a world
@@ -44,7 +47,7 @@ public final class Skyblock extends JavaPlugin {
                     case "help":
                         player.sendMessage("------Skyblock Help------\n" + "/skyblock help - shows the help section");
                         break;
-                    case "debug":
+                    case "init":
                         try {
                             if (!saveFolder.exists()) {
                                 saveFolder.mkdir();
@@ -62,7 +65,8 @@ public final class Skyblock extends JavaPlugin {
                             ex.printStackTrace();
                         }
                         break;
-                    case "debug2":
+                    case "debug":
+                        //Doesn't really work
                         /*try {
                             player.sendMessage("Doing more things");
                             Scanner scanner = new Scanner(save);
@@ -90,7 +94,8 @@ public final class Skyblock extends JavaPlugin {
                             ex.printStackTrace();
                         }*/
 
-                        BufferedReader objectReader;
+                        // Checks user from file
+                        /*BufferedReader objectReader;
                         try {
                             String line;
 
@@ -102,7 +107,7 @@ public final class Skyblock extends JavaPlugin {
                                     //TODO: save current inventory, teleport them to island, load skyblock inventory, give them nether star GUI thing
                                 } else {
                                     JSONObject object = new JSONObject();
-                                    object.put("name", player.getDisplayName());
+                                    object.put(player.getDisplayName(), "achievements:null");
 
                                     FileWriter fileWriter = new FileWriter(save);
                                     fileWriter.write(line + "," + object.toString());
@@ -113,7 +118,36 @@ public final class Skyblock extends JavaPlugin {
                             }
                         } catch (IOException ex) {
                             ex.printStackTrace();
+                        }*/
+
+
+                        try {
+                            //BufferedReader objectReader;
+                            //String line;
+
+                            File playerSave = new File(saveFolder + "/" + player.getDisplayName() + ".json");
+
+                            if (playerSave.exists()) {
+                                player.sendMessage("Found your world");
+                                //TODO: teleport them to their world and load configs with BufferedReader
+                            } else {
+                                player.sendMessage("Didn't find your world. Creating one now");
+                                playerSave.createNewFile();
+
+                                FileWriter writer = new FileWriter(playerSave);
+
+                                JSONObject object = new JSONObject();
+                                object.put("achievements", "null");
+                                object.put("coords", "null"); //TODO: put coords when doing island generation
+                                object.put("firstlog", "true");
+
+                                writer.write(object.toString());
+                                writer.close();
+                            }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
                         }
+
                         break;
                     default:
 
