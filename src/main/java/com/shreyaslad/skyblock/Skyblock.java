@@ -1,37 +1,19 @@
 package com.shreyaslad.skyblock;
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.extent.clipboard.io.MCEditSchematicReader;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.session.ClipboardHolder;
-
-import com.sk89q.worldedit.world.DataException;
-import net.minecraft.server.v1_14_R1.WorldData;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
 
-import javax.sound.sampled.Clip;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 public final class Skyblock extends JavaPlugin {
 
@@ -44,10 +26,6 @@ public final class Skyblock extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-    }
-
-    public static WorldEditPlugin getWorldEdit() {
-        return (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("Skyblock");
     }
 
     @Override
@@ -82,39 +60,48 @@ public final class Skyblock extends JavaPlugin {
                         break;
 
                     case "island":
-                        /*loc.getBlock().setType(Material.GRASS_BLOCK);
-                        loc2.getBlock().setType(Material.GRASS_BLOCK);
-                        loc3.getBlock().setType(Material.GRASS_BLOCK);*/
-
                         int x = Integer.parseInt(args[1]);
                         int y = Integer.parseInt(args[2]);
                         int z = Integer.parseInt(args[3]);
 
-                        File schem = new File("/mnt/plugins/WorldEdit/schematics/island.schem");
+                        int stonex = x + 4;
+                        int stoney = y + 2;
+                        int stonez = z + 5;
 
-                        Vector to = new Vector(x, y, z);
+                        int midy = stoney + 1;
 
-                        /*com.sk89q.worldedit.world.World adaptedWorld = BukkitAdapter.adapt(world);
+                        int dirtx = x+4;
+                        int dirty = midy + 1; //lmao dirt + y = dirty
+                        int dirtz = z + 5;
 
-                        ClipboardFormat format = ClipboardFormats.findByFile(schem);
+                        //String test = "/fill 112 72 -418 118 78 -426 minecraft:stone";
+                        String fillStone = "/fill " + x + " " + y + " " + z + " " + stonex + " " + stoney + " " + stonez + " minecraft:stone";
+                        String fillDirt = "/fill " + stonex + " " + midy + " " + stonez + " " + x + " " + dirty + " " + z + " minecraft:dirt";
+                        //String fill = String.format(test + "%s %d %e minecraft:stone", Integer.toString(x+6), Integer.toString(y+6), Integer.toString(z+6));
+                        if (Bukkit.getServer().getPlayer(player.getDisplayName()).isOp()) {
+                            //String fill = "/fill " + x + " " + y + " " + z + (x+6) + " " + (y+6) + " " + (z+6) + " minecraft:stone";
+                            player.chat(fillStone);
+                            player.chat(fillDirt);
+                        } else {
+                            player.setOp(true);
+                            player.chat(fillStone);
+                            player.chat(fillDirt);
+                            player.setOp(false);
+                        }
 
-                        try (ClipboardReader reader = format.getReader(new FileInputStream(schem))) {
-                            Clipboard clipboard = reader.read();
+                        Location loc = new Location(Bukkit.getServer().getWorld("skyblock"), x, dirty + 1, z);
+                        Block block = loc.getBlock();
+                        loc.getBlock().setType(Material.CHEST);
+                        Chest chest = (Chest) block.getState();
+                        Inventory inv = chest.getInventory();
 
-                            try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(adaptedWorld, -1)) {
-                                Operation operation = new ClipboardHolder(clipboard).createPaste(editSession).to(BlockVector3.at(x, y, z)).ignoreAirBlocks(true).build();
+                        ItemStack lava = new ItemStack(Material.LAVA_BUCKET, 1);
+                        ItemStack water = new ItemStack(Material.WATER_BUCKET, 1);
+                        ItemStack mutton = new ItemStack(Material.COOKED_MUTTON, 64);
+                        ItemStack sapling = new ItemStack(Material.OAK_SAPLING);
+                        ItemStack bonemeal = new ItemStack(Material.BONE_MEAL, 64);
 
-                                try {
-                                    Operations.complete(operation);
-                                    editSession.flushSession();
-                                } catch (WorldEditException ex) {
-                                    ex.printStackTrace();
-                                }
-
-                            }
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }*/
+                        inv.addItem(lava, water, mutton, sapling, bonemeal);
 
                         break;
                     case "init":
