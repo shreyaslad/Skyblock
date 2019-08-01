@@ -2,6 +2,7 @@ package com.shreyaslad.skyblock.Listeners;
 
 import com.shreyaslad.skyblock.Skyblock;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,6 +43,7 @@ public class BlockBreak implements Listener {
                             event.setCancelled(false);
                         } else {
                             event.setCancelled(true);
+                            player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "You are not allowed to break this block since it is not a part of your island");
                         }
                     }
                 }
