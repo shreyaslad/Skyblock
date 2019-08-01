@@ -106,7 +106,9 @@ public final class Skyblock extends JavaPlugin implements Listener {
                             Object obj = parser.parse(new FileReader(playerSave));
                             JSONObject jsonObject = (JSONObject) obj;
 
-                            jsonObject.put("coords", x + "," + y + "," + z + "," + stonex + "," + dirty + "," + stonez);
+                            int chesty = dirty + 1;
+
+                            jsonObject.put("coords", x + "," + y + "," + z + "," + stonex + "," + chesty + "," + stonez);
 
                             FileWriter fw = new FileWriter(playerSave);
                             fw.write(jsonObject.toString());
@@ -224,5 +226,13 @@ public final class Skyblock extends JavaPlugin implements Listener {
         }
 
         return false;
+    }
+
+    public static int[] StringArrToIntArr(String[] s) {
+        int[] result = new int[s.length];
+        for (int i = 0; i < s.length; i++) {
+            result[i] = Integer.parseInt(s[i]);
+        }
+        return result;
     }
 }
