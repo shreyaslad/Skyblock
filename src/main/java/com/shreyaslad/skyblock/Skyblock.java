@@ -1,26 +1,36 @@
 package com.shreyaslad.skyblock;
 
+import com.shreyaslad.skyblock.Listeners.BlockBreak;
+import com.shreyaslad.skyblock.Listeners.BlockPlace;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Skyblock extends JavaPlugin {
+public final class Skyblock extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
         // Plugin startup logic
         System.out.println("Skyblock plugin loaded!");
+        getServer().getPluginManager().registerEvents(new BlockBreak(), this);
+        getServer().getPluginManager().registerEvents(new BlockPlace(), this);
     }
 
     @Override
@@ -43,6 +53,8 @@ public final class Skyblock extends JavaPlugin {
             Map<String, String> map = new HashMap<>();
 
             World world = Bukkit.getServer().getWorld("newworld");
+
+            File playerSave = new File(saveFolder + "/" + player.getDisplayName() + ".json");
 
             /*World world = Bukkit.getServer().getWorld("newworld");
             Location loc = new Location(world, Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
@@ -89,6 +101,20 @@ public final class Skyblock extends JavaPlugin {
                             player.setOp(false);
                         }
 
+                        try {
+                            JSONParser parser = new JSONParser();
+                            Object obj = parser.parse(new FileReader(playerSave));
+                            JSONObject jsonObject = (JSONObject) obj;
+
+                            jsonObject.put("coords", x + "," + y + "," + z + "," + stonex + "," + dirty + "," + stonez);
+
+                            FileWriter fw = new FileWriter(playerSave);
+                            fw.write(jsonObject.toString());
+                            fw.close();
+                        } catch (IOException | ParseException ex) {
+                            ex.printStackTrace();
+                        }
+
                         Location loc = new Location(Bukkit.getServer().getWorld("skyblock"), x, dirty + 1, z);
                         Block block = loc.getBlock();
                         loc.getBlock().setType(Material.CHEST);
@@ -122,41 +148,36 @@ public final class Skyblock extends JavaPlugin {
                             ex.printStackTrace();
                         }
                         break;
-                    case "debug":
-                        //Doesn't really work
-                        /*try {
-                            player.sendMessage("Doing more things");
-                            Scanner scanner = new Scanner(save);
-                            while (scanner.hasNextLine()) {
-                                String line = scanner.nextLine();
-                                if (line.contains(player.getDisplayName())) {
-                                    player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "We found your world");
-                                } else {
-                                    player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "No world found. Creating one now");
+                    case "delete":
+                        try {
+                            JSONParser parser = new JSONParser();
+                            Object obj = parser.parse(new FileReader(playerSave));
+                            JSONObject jsonObject = (JSONObject) obj;
 
-                                    //TODO: try to use WorldEdit api and block radius detection (https://bukkit.org/threads/find-block-in-radius.88298/) (https://www.spigotmc.org/threads/getting-blocks-in-a-radius.60296/)
-
-                                    JSONObject object = new JSONObject();
-                                    object.put("name", player.getDisplayName());
-
-                                    try (FileWriter file = new FileWriter(save)) {
-                                        file.write(object.toString());
-                                        System.out.println("Skyblock [DEBUG] - Wrote " + player.getDisplayName() + " to file.");
-                                    } catch (IOException ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
+                            if (jsonObject.get("coords").equals("null")) {
+                                player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "Do \"/skyblock island\" to create your island");
                             }
-                        } catch (FileNotFoundException ex) {
-                            ex.printStackTrace();
-                        }*/
 
+                            String value = (String) jsonObject.get("coords");
+                            String[] coords = value.split(",");
+
+                            String area = "/fill " + coords[0] + " " + coords[1] + " " + coords[2] + " " + coords[3] + " " + coords[4] + " " + coords[5] + " minecraft:air";
+                            if (Bukkit.getServer().getPlayer(player.getDisplayName()).isOp()) {
+                                player.chat(area);
+                            } else {
+                                player.setOp(true);
+                                player.chat(area);
+                                player.setOp(false);
+                            }
+
+                        } catch (IOException | ParseException e) {
+                            player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "No world found. Do \"/skyblock debug\" to create one");
+                        }
+                        break;
+                    case "debug":
 
                         try {
-                            //BufferedReader objectReader;
-                            //String line;
 
-                            File playerSave = new File(saveFolder + "/" + player.getDisplayName() + ".json");
 
                             if (playerSave.exists()) {
                                 player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "We found your world");
@@ -178,7 +199,22 @@ public final class Skyblock extends JavaPlugin {
                         } catch (IOException ex) {
                             ex.printStackTrace();
                         }
+                        break;
+                    case "read":
+                        try {
+                            JSONParser jsonParser = new JSONParser();
+                            try (FileReader fileReader = new FileReader(playerSave)) {
+                                Object obj = jsonParser.parse(fileReader);
 
+                                JSONObject playerObject = (JSONObject) obj;
+
+                                String coords = (String) playerObject.get("coords");
+
+                                player.sendMessage(coords);
+                            }
+                        } catch (IOException | ParseException ex) {
+                            ex.printStackTrace();
+                        }
                         break;
                     default:
 
@@ -189,5 +225,4 @@ public final class Skyblock extends JavaPlugin {
 
         return false;
     }
-
 }
