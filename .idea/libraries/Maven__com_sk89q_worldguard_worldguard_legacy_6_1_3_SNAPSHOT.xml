@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.sk89q.worldguard:worldguard-legacy:6.1.3-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/sk89q/worldguard/worldguard-legacy/6.1.3-SNAPSHOT/worldguard-legacy-6.1.3-20160729.173432-7.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/sk89q/worldguard/worldguard-legacy/6.1.3-SNAPSHOT/worldguard-legacy-6.1.3-20160729.173432-7-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/sk89q/worldguard/worldguard-legacy/6.1.3-SNAPSHOT/worldguard-legacy-6.1.3-20160729.173432-7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

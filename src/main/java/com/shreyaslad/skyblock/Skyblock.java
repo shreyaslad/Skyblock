@@ -1,11 +1,33 @@
 package com.shreyaslad.skyblock;
 
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.MaxChangedBlocksException;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.bukkit.BukkitWorld;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
+import com.sk89q.worldedit.extent.clipboard.io.MCEditSchematicReader;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.session.ClipboardHolder;
+
+import com.sk89q.worldedit.world.DataException;
+import net.minecraft.server.v1_14_R1.WorldData;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
 
+import javax.sound.sampled.Clip;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +46,10 @@ public final class Skyblock extends JavaPlugin {
         // Plugin shutdown logic
     }
 
+    public static WorldEditPlugin getWorldEdit() {
+        return (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("Skyblock");
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("skyblock")) {
@@ -38,6 +64,13 @@ public final class Skyblock extends JavaPlugin {
 
             Map<String, String> map = new HashMap<>();
 
+            World world = Bukkit.getServer().getWorld("newworld");
+
+            /*World world = Bukkit.getServer().getWorld("newworld");
+            Location loc = new Location(world, Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            Location loc2 = new Location(world, Integer.parseInt(args[1]) + 1, Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+            Location loc3 = new Location(world, Integer.parseInt(args[1]) + 2, Integer.parseInt(args[2]), Integer.parseInt(args[3]));*/
+
             if (args.length == 0) {
                 player.sendMessage("Doing the things");
                 //TODO: check if they have a world
@@ -46,6 +79,43 @@ public final class Skyblock extends JavaPlugin {
                 switch (args[0]) {
                     case "help":
                         player.sendMessage("------Skyblock Help------\n" + "/skyblock help - shows the help section");
+                        break;
+
+                    case "island":
+                        /*loc.getBlock().setType(Material.GRASS_BLOCK);
+                        loc2.getBlock().setType(Material.GRASS_BLOCK);
+                        loc3.getBlock().setType(Material.GRASS_BLOCK);*/
+
+                        int x = Integer.parseInt(args[1]);
+                        int y = Integer.parseInt(args[2]);
+                        int z = Integer.parseInt(args[3]);
+
+                        File schem = new File("/mnt/plugins/WorldEdit/schematics/island.schem");
+
+                        Vector to = new Vector(x, y, z);
+
+                        /*com.sk89q.worldedit.world.World adaptedWorld = BukkitAdapter.adapt(world);
+
+                        ClipboardFormat format = ClipboardFormats.findByFile(schem);
+
+                        try (ClipboardReader reader = format.getReader(new FileInputStream(schem))) {
+                            Clipboard clipboard = reader.read();
+
+                            try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(adaptedWorld, -1)) {
+                                Operation operation = new ClipboardHolder(clipboard).createPaste(editSession).to(BlockVector3.at(x, y, z)).ignoreAirBlocks(true).build();
+
+                                try {
+                                    Operations.complete(operation);
+                                    editSession.flushSession();
+                                } catch (WorldEditException ex) {
+                                    ex.printStackTrace();
+                                }
+
+                            }
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }*/
+
                         break;
                     case "init":
                         try {
@@ -94,32 +164,6 @@ public final class Skyblock extends JavaPlugin {
                             ex.printStackTrace();
                         }*/
 
-                        // Checks user from file
-                        /*BufferedReader objectReader;
-                        try {
-                            String line;
-
-                            player.sendMessage(save.getCanonicalPath());
-                            objectReader = new BufferedReader(new FileReader(save));
-                            while ((line = objectReader.readLine()) != null) {
-                                if (line.contains(player.getDisplayName())) {
-                                    player.sendMessage("Found your world");
-                                    //TODO: save current inventory, teleport them to island, load skyblock inventory, give them nether star GUI thing
-                                } else {
-                                    JSONObject object = new JSONObject();
-                                    object.put(player.getDisplayName(), "achievements:null");
-
-                                    FileWriter fileWriter = new FileWriter(save);
-                                    fileWriter.write(line + "," + object.toString());
-                                    fileWriter.close();
-
-                                    player.sendMessage("Didn't find your world. Creating one now");
-                                }
-                            }
-                        } catch (IOException ex) {
-                            ex.printStackTrace();
-                        }*/
-
 
                         try {
                             //BufferedReader objectReader;
@@ -128,10 +172,10 @@ public final class Skyblock extends JavaPlugin {
                             File playerSave = new File(saveFolder + "/" + player.getDisplayName() + ".json");
 
                             if (playerSave.exists()) {
-                                player.sendMessage("Found your world");
+                                player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "We found your world");
                                 //TODO: teleport them to their world and load configs with BufferedReader
                             } else {
-                                player.sendMessage("Didn't find your world. Creating one now");
+                                player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "No world found. Creating one now");
                                 playerSave.createNewFile();
 
                                 FileWriter writer = new FileWriter(playerSave);
@@ -158,4 +202,5 @@ public final class Skyblock extends JavaPlugin {
 
         return false;
     }
+
 }
