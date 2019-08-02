@@ -1,3 +1,8 @@
+/*
+ * Skyblock.java
+ * Copyright Shreyas Lad (PenetratingShot) 2019
+ */
+
 package com.shreyaslad.skyblock;
 
 import com.shreyaslad.skyblock.Arguments.Help;
@@ -19,7 +24,6 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Random;
 
 public final class Skyblock extends JavaPlugin implements Listener {
 
@@ -340,5 +344,22 @@ public final class Skyblock extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static int[] getCoords(Player player) {
+        try {
+            File playerSave = new File("/mnt/plugins/Skyblock/" + player.getDisplayName() + ".json");
+
+            JSONParser parser = new JSONParser();
+            Object object = parser.parse(new FileReader(playerSave));
+            JSONObject jsonObject = (JSONObject) object;
+
+            int[] coords = StringArrToIntArr(jsonObject.toString().split(","));
+            return coords;
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }
