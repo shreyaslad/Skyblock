@@ -4,6 +4,7 @@ main: com.shreyaslad.skyblock.Skyblock
 api-version: 1.13
 authors: [3YD]
 description: A simple Skyblock plugin
+aliases: [s]
 commands:
   skyblock:
-    description: Displays the skyblock help section
+    description: Opens up skyblock GUI
