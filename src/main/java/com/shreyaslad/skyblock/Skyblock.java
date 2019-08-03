@@ -12,6 +12,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
@@ -236,6 +238,10 @@ public final class Skyblock extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
 
+        ArmorStand hologram = (ArmorStand) player.getWorld().spawnEntity(new Location(Bukkit.getServer().getWorld("skyblock"), x, y + 6, z), EntityType.ARMOR_STAND);
+        hologram.setVisible(false);
+        hologram.setCustomNameVisible(true);
+        hologram.setCustomName(ChatColor.RED + player.getDisplayName() + "'s " + ChatColor.WHITE + "Island");
 
     }
 
