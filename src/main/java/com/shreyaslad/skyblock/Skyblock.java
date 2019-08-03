@@ -84,17 +84,13 @@ public final class Skyblock extends JavaPlugin implements Listener {
 
                 /*if (hasIsland(player)) {
                     int[] coords = getOffsetCoords();
-
                     generateIsland(player, playerSave, coords[0], coords[1], coords[2]);
                     player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
-
                     try {
                         JSONParser parser = new JSONParser();
                         Object object = parser.parse(new FileReader(playerSave));
                         JSONObject jsonObject = (JSONObject) object;
-
                         jsonObject.put("coords", coords[0] + "," + coords[1] + "," + coords[2]);
-
                         FileWriter fileWriter = new FileWriter(playerSave);
                         fileWriter.write(jsonObject.toString());
                         fileWriter.close();
@@ -106,10 +102,8 @@ public final class Skyblock extends JavaPlugin implements Listener {
                         JSONParser parser = new JSONParser();
                         Object object = parser.parse(new FileReader(playerSave));
                         JSONObject jsonObject = (JSONObject) object;
-
                         String[] textCoords = jsonObject.get("coords").toString().split(",");
                         int[] coords = StringArrToIntArr(textCoords);
-
                         player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();

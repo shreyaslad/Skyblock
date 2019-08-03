@@ -37,17 +37,13 @@ public class ClickEvent implements Listener {
 
                         if (!Skyblock.hasIsland(player)) {
                             int[] coords = Skyblock.getOffsetCoords();
-
                             Skyblock.generateIsland(player, playerSave, coords[0], coords[1], coords[2]);
                             player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
-
                             try {
                                 JSONParser parser = new JSONParser();
                                 Object object = parser.parse(new FileReader(playerSave));
                                 JSONObject jsonObject = (JSONObject) object;
-
                                 jsonObject.put("coords", coords[0] + "," + coords[1] + "," + coords[2]);
-
                                 FileWriter fileWriter = new FileWriter(playerSave);
                                 fileWriter.write(jsonObject.toString());
                                 fileWriter.close();
@@ -59,10 +55,8 @@ public class ClickEvent implements Listener {
                                 JSONParser parser = new JSONParser();
                                 Object object = parser.parse(new FileReader(playerSave));
                                 JSONObject jsonObject = (JSONObject) object;
-
                                 String[] textCoords = jsonObject.get("coords").toString().split(",");
                                 int[] coords = Skyblock.StringArrToIntArr(textCoords);
-
                                 player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
                             } catch (IOException | ParseException ex) {
                                 ex.printStackTrace();
@@ -85,7 +79,6 @@ public class ClickEvent implements Listener {
         }
 
         /*Player player = (Player) e.getWhoClicked();
-
         if (e.getView().getTitle().equalsIgnoreCase(ChatColor.RED + "Skyblock")) {
             switch (e.getCurrentItem().getType()) {
                 case ENDER_PEARL:
@@ -101,7 +94,6 @@ public class ClickEvent implements Listener {
                     player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "Opening a new inventory");
                     break;
             }
-
             e.setCancelled(true);
         }*/
     }
