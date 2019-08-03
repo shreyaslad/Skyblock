@@ -1,6 +1,7 @@
 package com.shreyaslad.skyblock.Events;
 
 import com.shreyaslad.skyblock.Skyblock;
+import com.sk89q.worldguard.bukkit.event.block.PlaceBlockEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -8,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -77,24 +79,16 @@ public class ClickEvent implements Listener {
             }
 
         }
+    }
 
-        /*Player player = (Player) e.getWhoClicked();
-        if (e.getView().getTitle().equalsIgnoreCase(ChatColor.RED + "Skyblock")) {
-            switch (e.getCurrentItem().getType()) {
-                case ENDER_PEARL:
-                    player.closeInventory();
-                    player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "Teleporting you to your island");
-                    break;
-                case BARRIER:
-                    player.closeInventory();
-                    player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "Returning you to survival");
-                    break;
-                case ARROW:
-                    player.closeInventory();
-                    player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "Opening a new inventory");
-                    break;
+    @EventHandler
+    public static void something(InventoryInteractEvent event) {
+        if (event.getWhoClicked() instanceof Player) {
+            Player player = (Player) event.getWhoClicked();
+
+            if (player.getOpenInventory().getTitle().equalsIgnoreCase(ChatColor.DARK_GRAY + "Skyblock")) {
+                event.setCancelled(true);
             }
-            e.setCancelled(true);
-        }*/
+        }
     }
 }
