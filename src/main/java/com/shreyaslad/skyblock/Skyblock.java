@@ -7,6 +7,7 @@ package com.shreyaslad.skyblock;
 
 import com.shreyaslad.skyblock.Arguments.Help;
 import com.shreyaslad.skyblock.Events.ClickEvent;
+import com.shreyaslad.skyblock.Events.Eat;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -36,6 +37,7 @@ public final class Skyblock extends JavaPlugin implements Listener {
         // Plugin startup logic
         System.out.println("Skyblock plugin loaded!");
         getServer().getPluginManager().registerEvents(new ClickEvent(), this);
+        //getServer().getPluginManager().registerEvents(new Eat(), this);
     }
 
     @Override
@@ -74,6 +76,7 @@ public final class Skyblock extends JavaPlugin implements Listener {
                         object.put("achievements", "null");
                         object.put("coords", "null"); //TODO: put coords when doing island generation
                         object.put("firstlog", "true");
+                        //object.put("muttonCount", 5);
 
                         writer.write(object.toString());
                         writer.close();
@@ -143,6 +146,50 @@ public final class Skyblock extends JavaPlugin implements Listener {
                             ex.printStackTrace();
                         }
                         break;
+                    case "forcegen":
+                        if (!player.hasPermission("skyblock.forcegen")) {
+                            player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "You cannot perform this command. Please contact an admin on discord if your island is broken.");
+                        }
+
+                        Player commandPlayer = Bukkit.getServer().getPlayer(args[1]);
+
+                        File newPlayerSave = new File("/mnt/plugins/Skyblock/" + commandPlayer.getDisplayName() + ".json");
+
+                        if (!newPlayerSave.exists()) {
+                            try {
+                                newPlayerSave.createNewFile();
+                                FileWriter writer = new FileWriter(newPlayerSave);
+
+                                JSONObject object = new JSONObject();
+                                object.put("achievements", "null");
+                                object.put("coords", "null"); //TODO: put coords when doing island generation
+                                object.put("firstlog", "true");
+                                //object.put("muttonCount", 5);
+
+                                writer.write(object.toString());
+                                writer.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            int[] newCoords = Skyblock.getOffsetCoords();
+                            Skyblock.generateIsland(commandPlayer, newPlayerSave, newCoords[0], newCoords[1], newCoords[2]);
+                            player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), newCoords[0], newCoords[1] + 8, newCoords[2]));
+
+                            player.setBedSpawnLocation(new Location(Bukkit.getServer().getWorld("skyblock"), newCoords[0], newCoords[1] + 8, newCoords[2]));
+
+                            try {
+                                JSONParser parser = new JSONParser();
+                                Object object = parser.parse(new FileReader(playerSave));
+                                JSONObject jsonObject = (JSONObject) object;
+                                jsonObject.put("coords", newCoords[0] + "," + newCoords[1] + "," + newCoords[2]);
+                                FileWriter fileWriter = new FileWriter(playerSave);
+                                fileWriter.write(jsonObject.toString());
+                                fileWriter.close();
+                            } catch (IOException | ParseException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
                     default:
 
                 }
@@ -224,11 +271,12 @@ public final class Skyblock extends JavaPlugin implements Listener {
 
         ItemStack lava = new ItemStack(Material.LAVA_BUCKET, 1);
         ItemStack water = new ItemStack(Material.WATER_BUCKET, 1);
-        ItemStack mutton = new ItemStack(Material.COOKED_MUTTON, 64);
-        ItemStack sapling = new ItemStack(Material.OAK_SAPLING);
-        ItemStack bonemeal = new ItemStack(Material.BONE_MEAL, 64);
+        ItemStack mutton = new ItemStack(Material.COOKED_MUTTON, 5);
+        ItemStack sapling = new ItemStack(Material.OAK_SAPLING, 2);
+        ItemStack bonemeal = new ItemStack(Material.BONE_MEAL, 10);
+        ItemStack grass = new ItemStack(Material.GRASS_BLOCK, 4); //so you can farm
 
-        inv.addItem(lava, water, mutton, sapling, bonemeal);
+        inv.addItem(lava, water, mutton, sapling, bonemeal, grass);
 
         try {
             FileWriter fileWriter = new FileWriter(locSave);
@@ -328,7 +376,7 @@ public final class Skyblock extends JavaPlugin implements Listener {
         teleport.setItemMeta(teleportMeta);
 
         ItemMeta leaveMeta = leave.getItemMeta();
-        leaveMeta.setDisplayName(ChatColor.DARK_AQUA + "Leave");
+        leaveMeta.setDisplayName(ChatColor.DARK_RED + "Leave");
         ArrayList<String> leaveLore = new ArrayList<>();
         leaveLore.add(ChatColor.GOLD + "Return to survival");
         leaveMeta.setLore(leaveLore);

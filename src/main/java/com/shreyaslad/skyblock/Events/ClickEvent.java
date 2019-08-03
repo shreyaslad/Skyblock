@@ -22,7 +22,7 @@ import java.io.IOException;
 public class ClickEvent implements Listener {
 
     @EventHandler
-    @SuppressWarnings("Duplicates")
+    @SuppressWarnings({"Duplicates", "Unchecked"})
     public void clickEvent(InventoryClickEvent e) {
 
         if (e.getWhoClicked() instanceof Player) {
@@ -37,13 +37,40 @@ public class ClickEvent implements Listener {
                         player.closeInventory();
                         player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "Teleporting you to your island");
 
-                        if (!Skyblock.hasIsland(player)) {
+                        try {
+                            JSONParser parser = new JSONParser();
+                            Object object = parser.parse(new FileReader(playerSave));
+                            JSONObject jsonObject = (JSONObject) object;
+
+                            String coords = jsonObject.get("coords").toString();
+
+                            //int[] coords = Skyblock.StringArrToIntArr(textCoords);
+
+                            if (coords.equals("null")) {
+                                player.setOp(true);
+
+                                String message = "/skyblock forcegen " + player.getDisplayName();
+                                player.sendMessage("Doing " + message);
+                                player.chat(message);
+                                player.setOp(false);
+                            } else {
+                                int[] coordsArr = Skyblock.StringArrToIntArr(coords.split(","));
+                                player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coordsArr[0], coordsArr[1], coordsArr[2]));
+                            }
+                        } catch (IOException | ParseException ex) {
+                            ex.printStackTrace();
+                        }
+
+                        /*if (!Skyblock.hasIsland(player)) {
                             int[] coords = Skyblock.getOffsetCoords();
                             Skyblock.generateIsland(player, playerSave, coords[0], coords[1], coords[2]);
                             player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
+
+                            player.setBedSpawnLocation(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
+
                             try {
-                                JSONParser parser = new JSONParser();
-                                Object object = parser.parse(new FileReader(playerSave));
+                                JSONParser jsonParser = new JSONParser();
+                                Object object = jsonParser.parse(new FileReader(playerSave));
                                 JSONObject jsonObject = (JSONObject) object;
                                 jsonObject.put("coords", coords[0] + "," + coords[1] + "," + coords[2]);
                                 FileWriter fileWriter = new FileWriter(playerSave);
@@ -60,15 +87,16 @@ public class ClickEvent implements Listener {
                                 String[] textCoords = jsonObject.get("coords").toString().split(",");
                                 int[] coords = Skyblock.StringArrToIntArr(textCoords);
                                 player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
+                                player.setBedSpawnLocation(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
                             } catch (IOException | ParseException ex) {
                                 ex.printStackTrace();
                             }
-                        }
+                        }*/
                         break;
                     case BARRIER:
                         player.closeInventory();
                         player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "Returning you to survival");
-                        player.chat("/goto world");
+                        player.chat("/mv tp " + player.getDisplayName() + " world");
                         break;
                     case ARROW:
                         player.closeInventory();
