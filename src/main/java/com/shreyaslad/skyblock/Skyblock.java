@@ -42,6 +42,7 @@ public final class Skyblock extends JavaPlugin implements Listener {
     }
 
     @Override
+    @SuppressWarnings("Duplicates")
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("skyblock")) {
             if (!(sender instanceof Player)) {
@@ -59,10 +60,10 @@ public final class Skyblock extends JavaPlugin implements Listener {
 
                 try {
                     if (playerSave.exists()) {
-                        player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "We found your world");
+                        player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "We found your world");
                         //TODO: teleport them to their world and load configs with BufferedReader
                     } else {
-                        player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "No world found. Creating one now");
+                        player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "No world found. Creating one now");
                         playerSave.createNewFile();
 
                         FileWriter writer = new FileWriter(playerSave);
@@ -79,7 +80,9 @@ public final class Skyblock extends JavaPlugin implements Listener {
                     ex.printStackTrace();
                 }
 
-                if (hasIsland(player)) {
+                openInv(player);
+
+                /*if (hasIsland(player)) {
                     int[] coords = getOffsetCoords();
 
                     generateIsland(player, playerSave, coords[0], coords[1], coords[2]);
@@ -111,8 +114,7 @@ public final class Skyblock extends JavaPlugin implements Listener {
                     } catch (IOException | ParseException e) {
                         e.printStackTrace();
                     }
-                }
-
+                }*/
 
             } else {
                 switch (args[0]) {
@@ -145,72 +147,6 @@ public final class Skyblock extends JavaPlugin implements Listener {
                             ex.printStackTrace();
                         }
                         break;
-                    case "delete":
-                        try {
-                            JSONParser parser = new JSONParser();
-                            Object obj = parser.parse(new FileReader(playerSave));
-                            JSONObject jsonObject = (JSONObject) obj;
-
-                            if (jsonObject.get("coords").equals("null")) {
-                                player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "Do \"/skyblock island\" to create your island");
-                            }
-
-                            String value = (String) jsonObject.get("coords");
-                            String[] coords = value.split(",");
-
-                            String area = "/fill " + coords[0] + " " + coords[1] + " " + coords[2] + " " + coords[3] + " " + coords[4] + " " + coords[5] + " minecraft:air";
-                            if (Bukkit.getServer().getPlayer(player.getDisplayName()).isOp()) {
-                                player.chat(area);
-                            } else {
-                                player.setOp(true);
-                                player.chat(area);
-                                player.setOp(false);
-                            }
-
-                        } catch (IOException | ParseException e) {
-                            player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + "|" + ChatColor.WHITE + "No world found. Do \"/skyblock debug\" to create one");
-                        }
-                        break;
-                    case "gui":
-
-                        Inventory gui = Bukkit.createInventory(player, 9, ChatColor.DARK_GRAY + "Skyblock");
-
-                        ItemStack teleport = new ItemStack(Material.ENDER_PEARL);
-                        ItemStack leave = new ItemStack(Material.BARRIER);
-                        ItemStack visit = new ItemStack(Material.ARROW);
-
-                        ItemMeta teleportMeta = teleport.getItemMeta();
-                        teleportMeta.setDisplayName(ChatColor.DARK_AQUA + "Teleport");
-                        ArrayList<String> teleportLore = new ArrayList<>();
-                        teleportLore.add(ChatColor.GOLD + "Teleport to your Skyblock island");
-                        teleportMeta.setLore(teleportLore);
-
-                        teleport.setItemMeta(teleportMeta);
-
-                        ItemMeta leaveMeta = leave.getItemMeta();
-                        leaveMeta.setDisplayName(ChatColor.DARK_AQUA + "Leave");
-                        ArrayList<String> leaveLore = new ArrayList<>();
-                        leaveLore.add(ChatColor.GOLD + "Return to survival");
-                        leaveMeta.setLore(leaveLore);
-
-                        leave.setItemMeta(leaveMeta);
-
-                        ItemMeta visitMeta = leave.getItemMeta();
-                        visitMeta.setDisplayName(ChatColor.DARK_PURPLE + "Visit Island");
-                        ArrayList<String> visitLore = new ArrayList<>();
-                        visitLore.add(ChatColor.GOLD + "Check out anyone's island");
-                        leaveMeta.setLore(visitLore);
-
-                        visit.setItemMeta(visitMeta);
-
-                        /*ItemStack[]  menuItems = {teleport, visit, leave};
-                        gui.setContents(menuItems);*/
-                        gui.addItem(teleport);
-                        gui.addItem(visit);
-                        gui.addItem(leave);
-                        player.openInventory(gui);
-
-                        break;
                     default:
 
                 }
@@ -221,7 +157,10 @@ public final class Skyblock extends JavaPlugin implements Listener {
         return false;
     }
 
+    @SuppressWarnings("Duplicates")
     public static void generateIsland(Player player, File playerSave, int x, int y, int z) {
+
+        // TODO: force chunk to load and then unforce it
         int stonex = x + 4;
         int stoney = y + 2;
         int stonez = z + 5;
@@ -244,14 +183,24 @@ public final class Skyblock extends JavaPlugin implements Listener {
         //String fill = String.format(test + "%s %d %e minecraft:stone", Integer.toString(x+6), Integer.toString(y+6), Integer.toString(z+6));
         if (Bukkit.getServer().getPlayer(player.getDisplayName()).isOp()) {
             //String fill = "/fill " + x + " " + y + " " + z + (x+6) + " " + (y+6) + " " + (z+6) + " minecraft:stone";
+            player.chat("/forceload add " + x + " " + z + " " + stonex + " " + stonez);
+
             player.chat(fillStone);
             player.chat(fillDirt);
             player.chat(fillAir);
+
+            player.chat("/forceload remove " + x + " " + z + " " + stonex + " " + stonez);
         } else {
             player.setOp(true);
+
+            player.chat("/forceload add " + x + " " + z + " " + stonex + " " + stonez);
+
             player.chat(fillStone);
             player.chat(fillDirt);
             player.chat(fillAir);
+
+            player.chat("/forceload remove " + x + " " + z + " " + stonex + " " + stonez);
+
             player.setOp(false);
         }
 
@@ -361,5 +310,44 @@ public final class Skyblock extends JavaPlugin implements Listener {
         }
 
         return null;
+    }
+
+    public static void openInv(Player player) {
+        Inventory gui = Bukkit.createInventory(player, 9, ChatColor.DARK_GRAY + "Skyblock");
+
+        ItemStack teleport = new ItemStack(Material.ENDER_PEARL);
+        ItemStack leave = new ItemStack(Material.BARRIER);
+        ItemStack visit = new ItemStack(Material.ARROW);
+
+        ItemMeta teleportMeta = teleport.getItemMeta();
+        teleportMeta.setDisplayName(ChatColor.DARK_AQUA + "Teleport");
+        ArrayList<String> teleportLore = new ArrayList<>();
+        teleportLore.add(ChatColor.GOLD + "Teleport to your Skyblock island");
+        teleportMeta.setLore(teleportLore);
+
+        teleport.setItemMeta(teleportMeta);
+
+        ItemMeta leaveMeta = leave.getItemMeta();
+        leaveMeta.setDisplayName(ChatColor.DARK_AQUA + "Leave");
+        ArrayList<String> leaveLore = new ArrayList<>();
+        leaveLore.add(ChatColor.GOLD + "Return to survival");
+        leaveMeta.setLore(leaveLore);
+
+        leave.setItemMeta(leaveMeta);
+
+        ItemMeta visitMeta = leave.getItemMeta();
+        visitMeta.setDisplayName(ChatColor.DARK_PURPLE + "Visit Island");
+        ArrayList<String> visitLore = new ArrayList<>();
+        visitLore.add(ChatColor.GOLD + "Check out anyone's island");
+        leaveMeta.setLore(visitLore);
+
+        visit.setItemMeta(visitMeta);
+
+                        /*ItemStack[]  menuItems = {teleport, visit, leave};
+                        gui.setContents(menuItems);*/
+        gui.addItem(teleport);
+        gui.addItem(visit);
+        gui.addItem(leave);
+        player.openInventory(gui);
     }
 }

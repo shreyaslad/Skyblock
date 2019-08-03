@@ -8,11 +8,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class ClickEvent implements Listener {
 
     @EventHandler
+    @SuppressWarnings("Duplicates")
     public void clickEvent(InventoryClickEvent e) {
 
         if (e.getWhoClicked() instanceof Player) {
@@ -27,13 +35,38 @@ public class ClickEvent implements Listener {
                         player.closeInventory();
                         player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "Teleporting you to your island");
 
-                        int[] coords = Skyblock.getOffsetCoords();
+                        if (!Skyblock.hasIsland(player)) {
+                            int[] coords = Skyblock.getOffsetCoords();
 
-                        if (Skyblock.hasIsland(player)) {
-                            int[] playerCoords = Skyblock.getCoords(player);
-                            player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), playerCoords[0], playerCoords[1], playerCoords[2]));
-                        } else {
                             Skyblock.generateIsland(player, playerSave, coords[0], coords[1], coords[2]);
+                            player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
+
+                            try {
+                                JSONParser parser = new JSONParser();
+                                Object object = parser.parse(new FileReader(playerSave));
+                                JSONObject jsonObject = (JSONObject) object;
+
+                                jsonObject.put("coords", coords[0] + "," + coords[1] + "," + coords[2]);
+
+                                FileWriter fileWriter = new FileWriter(playerSave);
+                                fileWriter.write(jsonObject.toString());
+                                fileWriter.close();
+                            } catch (IOException | ParseException ex) {
+                                ex.printStackTrace();
+                            }
+                        } else {
+                            try {
+                                JSONParser parser = new JSONParser();
+                                Object object = parser.parse(new FileReader(playerSave));
+                                JSONObject jsonObject = (JSONObject) object;
+
+                                String[] textCoords = jsonObject.get("coords").toString().split(",");
+                                int[] coords = Skyblock.StringArrToIntArr(textCoords);
+
+                                player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
+                            } catch (IOException | ParseException ex) {
+                                ex.printStackTrace();
+                            }
                         }
                         break;
                     case BARRIER:
