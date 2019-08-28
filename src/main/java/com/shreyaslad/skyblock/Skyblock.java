@@ -87,34 +87,6 @@ public final class Skyblock extends JavaPlugin implements Listener {
 
                 openInv(player);
 
-                /*if (hasIsland(player)) {
-                    int[] coords = getOffsetCoords();
-                    generateIsland(player, playerSave, coords[0], coords[1], coords[2]);
-                    player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
-                    try {
-                        JSONParser parser = new JSONParser();
-                        Object object = parser.parse(new FileReader(playerSave));
-                        JSONObject jsonObject = (JSONObject) object;
-                        jsonObject.put("coords", coords[0] + "," + coords[1] + "," + coords[2]);
-                        FileWriter fileWriter = new FileWriter(playerSave);
-                        fileWriter.write(jsonObject.toString());
-                        fileWriter.close();
-                    } catch (IOException | ParseException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-                        JSONParser parser = new JSONParser();
-                        Object object = parser.parse(new FileReader(playerSave));
-                        JSONObject jsonObject = (JSONObject) object;
-                        String[] textCoords = jsonObject.get("coords").toString().split(",");
-                        int[] coords = StringArrToIntArr(textCoords);
-                        player.teleport(new Location(Bukkit.getServer().getWorld("skyblock"), coords[0], coords[1] + 8, coords[2]));
-                    } catch (IOException | ParseException e) {
-                        e.printStackTrace();
-                    }
-                }*/
-
             } else {
                 switch (args[0]) {
                     case "help":
@@ -146,6 +118,11 @@ public final class Skyblock extends JavaPlugin implements Listener {
                             ex.printStackTrace();
                         }
                         break;
+						
+					/*
+						This command is supposed to be used by admins to force an island to generate for a player,
+						however, since  I was lazy I just force the player to run this command if they don't already have an island.
+					*/
                     case "forcegen":
                         if (!player.hasPermission("skyblock.forcegen")) {
                             player.sendMessage(ChatColor.RED + "Skyblock" + ChatColor.GRAY + " | " + ChatColor.WHITE + "You cannot perform this command. Please contact an admin on discord if your island is broken.");
@@ -162,9 +139,9 @@ public final class Skyblock extends JavaPlugin implements Listener {
 
                                 JSONObject object = new JSONObject();
                                 object.put("achievements", "null");
-                                object.put("coords", "null"); //TODO: put coords when doing island generation
+                                object.put("coords", "null");
                                 object.put("firstlog", "true");
-                                //object.put("muttonCount", 5);
+                                //object.put("muttonCount", 5); PlayerEatEvent isn't working properly
 
                                 writer.write(object.toString());
                                 writer.close();
@@ -202,8 +179,6 @@ public final class Skyblock extends JavaPlugin implements Listener {
 
     @SuppressWarnings("Duplicates")
     public static void generateIsland(Player player, File playerSave, int x, int y, int z) {
-
-        // TODO: force chunk to load and then unforce it
         int stonex = x + 4;
         int stoney = y + 2;
         int stonez = z + 5;
